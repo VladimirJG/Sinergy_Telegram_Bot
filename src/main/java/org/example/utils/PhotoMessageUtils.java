@@ -1,7 +1,9 @@
 package org.example.utils;
 
+import org.example.functions.ImagesOperation;
 import org.telegram.telegrambots.meta.api.objects.File;
 
+import java.awt.image.BufferedImage;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,8 +19,8 @@ public class PhotoMessageUtils {
         Random random = new Random();
         ArrayList<String> paths = new ArrayList<>();
         for (File file : files) {
-            final String imageUrl = "https://api.telegram.org/file.bot" + botToken + "/" + file.getFilePath();
-            final String localFileName = "images/" + new Date().getTime() + random.nextLong() + ".jpg";
+            final String imageUrl = "https://api.telegram.org/file/bot" + botToken + "/" + file.getFilePath();
+            final String localFileName = "images/" + new Date().getTime() + random.nextLong() + ".jpeg";
             saveImage(imageUrl, localFileName);
             paths.add(localFileName);
         }
@@ -29,15 +31,19 @@ public class PhotoMessageUtils {
         URL urlModel = new URL(url);
         InputStream inputStream = urlModel.openStream();
         OutputStream outputStream = new FileOutputStream(fileName);
-
         byte[] b = new byte[2048];
         int length;
-
-
         while ((length = inputStream.read(b)) != -1) {
             outputStream.write(b, 0, length);
         }
         inputStream.close();
         outputStream.close();
+    }
+
+    public static void processingImage(String fileName, ImagesOperation operation) throws Exception {
+        final BufferedImage image = ImageUtils.getImage(fileName);
+        final RgbMaster rgbMaster = new RgbMaster(image);
+        rgbMaster.changeImage(operation);
+        ImageUtils.saveImage(rgbMaster.getImage(), fileName);
     }
 }
